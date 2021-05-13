@@ -1,3 +1,6 @@
+ * {
+     box-sizing: border-box;
+ }
 body {
     font-family: Arial, Helvetica, sans-serif;
 
@@ -9,6 +12,9 @@ table {
     border-collapse: collapse; 
     font-family: Calibri, sans-serif; 
 }
+table#board.input-enabled {
+    border: 3px solid blue;
+}
 colgroup, tbody { 
     border: solid medium; 
 }
@@ -17,15 +23,17 @@ td {
     height: 3em; 
     width: 3em;
     text-align: center; 
-    padding: 0; 
 
     position: relative;
-
+    background-clip: content-box;
     /* transition: background-color 2s; */
 }
+/* td * {
+    display: none;
+} */
 
 td.changed {
-    background-color: rgb(212, 212, 212);
+    background-color: rgb(255, 254, 188);
 }
 td.changed.backtracked {
     background-color: rgb(255, 140, 140);
@@ -49,6 +57,13 @@ td span {
     font-weight: lighter;
     width: 33%;
     height: 33%;
+}
+
+td span.choose-number {
+    cursor: pointer;
+}
+td span.choose-number:hover {
+    background-color: rgb(168, 245, 255);
 }
 td span.possible-1 { top: 0; left: 0; }
 td span.possible-2 { top: 0; left: 34%; }
