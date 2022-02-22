@@ -3,15 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        
         <link rel="stylesheet" href="index.css">
 
-
-        <script src="modules/drawing.js"></script>
-        <script src="modules/input.js"></script>
-        <script src="modules/validate.js"></script>
-        <script src="modules/invalidate.js"></script>
+        <script src="Tile.js"></script>
+        <script src="Board.js"></script>
     </head>
     <body>
         <h1>Sudoku Solver</h1>
@@ -33,9 +28,9 @@
              <tr> <td>  <td>  <td>  <td>  <td>  <td>  <td>  <td>  <td> 
           </table>
         <div id="options">
-            <button onclick="disableBoardInput();solve();">Solve</button>
-            <button onclick="clearBoard();enableBoardInput();">Input</button>
-            <button onclick="resetBoard();">Reset</button>
+            <button onclick="board.solve()">Solve</button>
+            <button onclick="board.invalidate()">Invalidate</button>
+            <button onclick="board.findSingles()">find Singles</button>
         </div>
     </body>
     <script src="main.js"></script>
