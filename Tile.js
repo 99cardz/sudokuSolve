@@ -19,51 +19,50 @@ class Tile {
 		}
 	}
 	linkColisioningTiles(board) {
-		for (let row_i of colisions.row.find((row) => row.includes(this.index)))
+		for (let row_i of colisions.row.find(row => row.includes(this.index)))
 			if (row_i !== this.index) this.row.push(board.tiles[row_i])
-		for (let column_i of colisions.column.find((column) => column.includes(this.index)))
+		for (let column_i of colisions.column.find(column => column.includes(this.index)))
 			if (column_i !== this.index) this.column.push(board.tiles[column_i])
-		for (let block_i of colisions.block.find((block) => block.includes(this.index)))
+		for (let block_i of colisions.block.find(block => block.includes(this.index)))
 			if (block_i !== this.index) this.block.push(board.tiles[block_i])
 	}
-	singleValue() {
+	value() {
 		return (this.values.length === 1) ? this.values[0] : null
 	}
 	invalidate() {
 		if (this.isPreSet) return 0
 
-		let changes = 0
-		var remove = (value) => {
-			if (value) {
-				let index = this.values.indexOf(value)
-				if (index > -1) {
-					this.values.splice(index, 1)
-					changes++
-				}
-			}
-		}
-		for (let other of this.row) remove(other.singleValue())
-		for (let other of this.column) remove(other.singleValue())
-		for (let other of this.block) remove(other.singleValue())
+		let length = this.values.length
+		var remove = otherValue => { if (otherValue) this.values = this.values.filter(v => v !== otherValue) }
 
+		for (let other of this.row) remove(other.value())
+		for (let other of this.column) remove(other.value())
+		for (let other of this.block) remove(other.value())
+
+		let changes = length - this.values.length
 		if (changes) this.draw()
-
 		return changes
 	}
 	singleOut() {
 		if (this.isPreSet || this.values.length === 1) return false
 
-		var setSingle = (value) => { 
+		var setSingle = value => { 
 			this.values = [value]
 			this.draw()
 		}
 
 		for (let value of this.values) {
-			if (this.row.every((other) => !other.values.includes(value))) { setSingle(value); return true }
-			if (this.column.every((other) => !other.values.includes(value))) { setSingle(value); return true }
-			if (this.block.every((other) => !other.values.includes(value))) { setSingle(value); return true }
+			var excludes = otherTile => !otherTile.values.includes(value)
+			if (this.row.every(excludes)) { setSingle(value); return true }
+			if (this.column.every(excludes)) { setSingle(value); return true }
+			if (this.block.every(excludes)) { setSingle(value); return true }
 		}
 		return false
+	}
+	isValid() {
+		if (this.isPreSet || this.values.length > 1) return true
+		var isDifferent = otherTile => otherTile.value() !== this.value()
+		return this.row.every(isDifferent) && this.column.every(isDifferent) && this.block.every(isDifferent)
 	}
 	draw() {
 		if (this.isPreSet) return

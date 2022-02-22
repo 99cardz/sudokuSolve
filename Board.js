@@ -1,5 +1,6 @@
 class Board {
 	tiles = [];
+
 	constructor(initString) {
 		let index = 0;
 		for (let char of initString) {
@@ -18,10 +19,14 @@ class Board {
 			console.log(`solved board`)
 			return
 		}
+		console.log(`board is ${this.isValid() ? "valid" : "invalid"}`);
 		this.split()
 	}
 	isSolved() {
 		return this.tiles.every((tile) => tile.values.length === 1)
+	}
+	isValid() {
+		return this.tiles.every(tile => tile.isValid())
 	}
 	invalidate() {
 		let changes = 0
@@ -39,11 +44,17 @@ class Board {
 		}
 	}
 	split() {
+		if (this.isSolved()) return
 		let smallest
 		for (let count = 2; count <= 9 && !smallest; count++)
 			smallest = this.tiles.find((tile) => tile.values.length <= count && tile.values.length > 1)
 		
-		console.log(`found smallest at index ${smallest.index}`)
+		console.log(`found smallest at index ${smallest.index} with possible values: ${smallest.values}`)
+
+		// test
+
+		smallest.values = [smallest.values[1]]
+		smallest.draw()
 	}
 }
 
