@@ -27,7 +27,7 @@ class Tile {
 			if (block_i !== this.index) this.block.push(board.tiles[block_i])
 	}
 	value() {
-		return (this.values.length === 1) ? this.values[0] : null
+		return (this.values.length === 1) ? this.values[0] : 0
 	}
 	invalidate() {
 		if (this.isPreSet) return 0
@@ -61,6 +61,7 @@ class Tile {
 	}
 	isValid() {
 		if (this.isPreSet || this.values.length > 1) return true
+		if (this.values.length === 0 ) return false
 		var isDifferent = otherTile => otherTile.value() !== this.value()
 		return this.row.every(isDifferent) && this.column.every(isDifferent) && this.block.every(isDifferent)
 	}

@@ -1,6 +1,6 @@
 class Board {
-	tiles = [];
-
+	tiles = []
+	saves = []
 	constructor(initString) {
 		let index = 0;
 		for (let char of initString) {
@@ -15,12 +15,19 @@ class Board {
 	solve() {
 		this.invalidate()
 		this.findSingles()
-		if (this.isSolved()) {
-			console.log(`solved board`)
-			return
+
+		if (this.isSolved()) return
+
+		if (!this.isValid()) {
+			console.log(`bord not valid anymore, going back to save`)
+			if (!this.loadLastSave()) {
+				console.log(`no solution`)
+				return
+			}
+		} else {
+			this.split()
 		}
-		console.log(`board is ${this.isValid() ? "valid" : "invalid"}`);
-		this.split()
+		this.solve()
 	}
 	isSolved() {
 		return this.tiles.every((tile) => tile.values.length === 1)
@@ -31,13 +38,11 @@ class Board {
 	invalidate() {
 		let changes = 0
 		for (let tile of this.tiles) changes += tile.invalidate() 
-		console.log(`invalidated ${changes} values`)
 		if (changes) this.invalidate() // invalidate as long as we can
 	}
 	findSingles() {
 		let changes = 0
 		for (let tile of this.tiles) changes += tile.singleOut()
-		console.log(`found ${changes} single possible values`)
 		if (changes) { 
 			this.invalidate()
 			this.findSingles() // find as long as we can
@@ -45,19 +50,38 @@ class Board {
 	}
 	split() {
 		if (this.isSolved()) return
+
 		let smallest
 		for (let count = 2; count <= 9 && !smallest; count++)
 			smallest = this.tiles.find((tile) => tile.values.length <= count && tile.values.length > 1)
 		
-		console.log(`found smallest at index ${smallest.index} with possible values: ${smallest.values}`)
-
-		// test
-
-		smallest.values = [smallest.values[1]]
+		console.log(`splitting bloard at index ${smallest.index} into ${smallest.values.length}  boards`)
+			
+		let first = smallest.values[0]
+		for (let value of smallest.values.splice(1)) {
+			smallest.values = [value]
+			this.saves.push(this.toString())
+		}
+		smallest.values = [first]
 		smallest.draw()
 	}
-}
+	toString() {
+		let str = ""
+		for (let tile of this.tiles) str += tile.value()
+		return str
+	}
+	loadLastSave() {
+		if (this.saves.length === 0) return false
+		for (let tile of this.tiles) {
+			let value = Number(str[tile.index])
+			tile.values = value ? [value] : [1,2,3,4,5,6,7,8,9]
+		}
+		this.invalidate()
+		this.draw()
+		return true
+	}
+	draw() {
+		for (let tile of this.tiles) tile.draw()
+	}
 
-function copyInstance (original) {
-	return Object.assign(Object.create(Object.getPrototypeOf(original)), original)
 }
