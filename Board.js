@@ -8,7 +8,8 @@ class Board {
 			if (index > 80) break
 		}
 
-		for (let tile of this.tiles) tile.linkColisioningTiles(this)
+		this.eachTile(tile => tile.linkColisioningTiles(this))
+		// for (let tile of this.tiles) 
 
 		this.invalidate()
 	}
@@ -30,19 +31,21 @@ class Board {
 		this.solve()
 	}
 	isSolved() {
-		return this.tiles.every((tile) => tile.values.length === 1)
+		return this.tiles.every(tile => tile.values.length === 1)
 	}
 	isValid() {
 		return this.tiles.every(tile => tile.isValid())
 	}
 	invalidate() {
 		let changes = 0
-		for (let tile of this.tiles) changes += tile.invalidate() 
+		this.eachTile(tile => changes += tile.invalidate())
+		// for (let tile of this.tiles) changes += tile.invalidate() 
 		if (changes) this.invalidate() // invalidate as long as we can
 	}
 	findSingles() {
 		let changes = 0
-		for (let tile of this.tiles) changes += tile.singleOut()
+		this.eachTile(tile => changes += tile.singleOut())
+		// for (let tile of this.tiles) changes += tile.singleOut()
 		if (changes) { 
 			this.invalidate()
 			this.findSingles() // find as long as we can
@@ -67,21 +70,24 @@ class Board {
 	}
 	toString() {
 		let str = ""
-		for (let tile of this.tiles) str += tile.value()
+		this.eachTile(tile => str += tile.value())
+		// for (let tile of this.tiles) str += tile.value()
 		return str
 	}
 	loadLastSave() {
 		if (this.saves.length === 0) return false
-		for (let tile of this.tiles) {
+		this.eachTile(tile => {
 			let value = Number(str[tile.index])
 			tile.values = value ? [value] : [1,2,3,4,5,6,7,8,9]
-		}
+		})
 		this.invalidate()
 		this.draw()
 		return true
 	}
 	draw() {
-		for (let tile of this.tiles) tile.draw()
+		this.eachTile(tile => tile.draw())
 	}
-
+	eachTile(func) {
+		for (let tile of this.tiles) func(tile)
+	}
 }
