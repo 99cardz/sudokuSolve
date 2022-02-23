@@ -7,6 +7,7 @@
 
         <script src="Tile.js"></script>
         <script src="Board.js"></script>
+        <script src="main.js"></script>
     </head>
     <body>
         <h1>Sudoku Solver</h1>
@@ -29,10 +30,7 @@
           </table>
         <div id="options">
             <button onclick="board.solve()">Solve</button>
-            <button onclick="board.invalidate()">Invalidate</button>
-            <button onclick="board.findSingles()">find Singles</button>
         </div>
+        <div><input type="range" min="0" max="1000" value="0" onchange="solveInterval = Number(this.value)"></div>
     </body>
-    <script src="main.js"></script>
-    
 </html>

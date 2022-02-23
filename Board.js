@@ -9,26 +9,16 @@ class Board {
 		}
 
 		this.eachTile(tile => tile.linkColisioningTiles(this))
-		// for (let tile of this.tiles) 
-
 		this.invalidate()
 	}
 	solve() {
-		this.invalidate()
-		this.findSingles()
-
-		if (this.isSolved()) return
-
-		if (!this.isValid()) {
-			console.log(`bord not valid anymore, going back to save`)
-			if (!this.loadLastSave()) {
-				console.log(`no solution`)
-				return
-			}
-		} else {
-			this.split()
+		while (!this.isSolved()) {
+			this.invalidate()
+			this.findSingles()
+			if (this.isValid()) this.split()
+			else if (!this.loadLastSave()) return false
 		}
-		this.solve()
+		return true
 	}
 	isSolved() {
 		return this.tiles.every(tile => tile.values.length === 1)
@@ -36,29 +26,26 @@ class Board {
 	isValid() {
 		return this.tiles.every(tile => tile.isValid())
 	}
-	invalidate() {
+	invalidate(previous = 0) {
 		let changes = 0
 		this.eachTile(tile => changes += tile.invalidate())
-		// for (let tile of this.tiles) changes += tile.invalidate() 
-		if (changes) this.invalidate() // invalidate as long as we can
+		if (changes) this.invalidate(previous + changes) // invalidate as long as we can
+		return previous + changes
 	}
 	findSingles() {
 		let changes = 0
-		this.eachTile(tile => changes += tile.singleOut())
-		// for (let tile of this.tiles) changes += tile.singleOut()
-		if (changes) { 
+		while (this.tiles.find(tile => tile.singleOut())) {
 			this.invalidate()
-			this.findSingles() // find as long as we can
+			changes++
 		}
+		return changes
 	}
 	split() {
-		if (this.isSolved()) return
+		if (this.isSolved() || !this.isValid()) return
 
 		let smallest
 		for (let count = 2; count <= 9 && !smallest; count++)
-			smallest = this.tiles.find((tile) => tile.values.length <= count && tile.values.length > 1)
-		
-		console.log(`splitting bloard at index ${smallest.index} into ${smallest.values.length}  boards`)
+			smallest = this.tiles.find(tile => tile.values.length <= count && tile.values.length > 1)
 			
 		let first = smallest.values[0]
 		for (let value of smallest.values.splice(1)) {
@@ -69,15 +56,14 @@ class Board {
 		smallest.draw()
 	}
 	toString() {
-		let str = ""
-		this.eachTile(tile => str += tile.value())
-		// for (let tile of this.tiles) str += tile.value()
-		return str
+		return this.tiles.map(tile => tile.value()).join("")
 	}
 	loadLastSave() {
 		if (this.saves.length === 0) return false
+
+		let save = this.saves.pop()
 		this.eachTile(tile => {
-			let value = Number(str[tile.index])
+			let value = Number(save[tile.index])
 			tile.values = value ? [value] : [1,2,3,4,5,6,7,8,9]
 		})
 		this.invalidate()
