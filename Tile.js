@@ -7,9 +7,18 @@ class Tile {
 	isPreSet = false
 	isInputEnabled = false
 	element
-	constructor(index) {
+	constructor(index, value) {
 		this.index = index
 		this.element = document.querySelectorAll("table#board td")[index]
+
+		if (value) {
+			this.element.className = "original"
+			this.element.textContent = value
+			this.values = [value]
+			this.isPreSet = true
+		} else {
+			this.values = [1,2,3,4,5,6,7,8,9]
+		}
 	}
 	linkColisioningTiles(board) {
 		for (let row_i of colisions.row.find(row => row.includes(this.index)))
@@ -25,7 +34,12 @@ class Tile {
 		this.draw()
 	}
 	#setValueEvent(e) {
-		this.setValue(Number(e.target.innerText), true)
+		let value = Number(e.target.innerText)
+		this.values = [value]
+		this.element.className = "original"
+		this.element.textContent = value
+		this.isPreSet = true
+
 		for (let other of this.row) other.invalidate()
 		for (let other of this.column) other.invalidate()
 		for (let other of this.block) other.invalidate()
@@ -35,15 +49,9 @@ class Tile {
 		this.isInputEnabled = false
 		this.draw()
 	}
-	setValue(value, initial) {
+	setValue(value) {
 		if (value) {
 			this.values = [value]
-			if (initial) {
-				this.element.className = "original"
-				this.element.textContent = value
-				this.isPreSet = true
-			}
-			this.draw()
 		} else {
 			this.values = [1,2,3,4,5,6,7,8,9]
 			this.element.className = ""

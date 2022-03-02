@@ -1,13 +1,12 @@
 class Board {
 	tiles = []
 	saves = []
-	constructor(initString) {
-		for (let index = 0; index < 81; index++) this.tiles.push(new Tile(index))
-
-		if (initString) this.loadString(initString, true)
-		else this.enableInput()
+	constructor(initString = "") {
+		for (let index = 0; index < 81; index++) this.tiles.push(new Tile(index, Number(initString[index])))
 
 		this.eachTile(tile => tile.linkColisioningTiles(this))
+
+		if (!initString) this.enableInput()
 		this.invalidate()
 		this.draw()
 	}
@@ -84,8 +83,10 @@ class Board {
 		this.draw()
 		return true
 	}
-	loadString(str, initial) {
-		this.eachTile(tile => tile.setValue(Number(str[tile.index]), initial))
+	loadString(str) {
+		this.eachTile(tile => tile.setValue(Number(str[tile.index])))
+		this.invalidate()
+		this.draw()
 	}
 	draw() {
 		this.eachTile(tile => tile.draw())
