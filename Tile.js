@@ -5,18 +5,11 @@ class Tile {
 	index
 	values
 	isPreSet = false
+	isInputEnabled = false
 	element
-	constructor(index, value) {
+	constructor(index) {
 		this.index = index
 		this.element = document.querySelectorAll("table#board td")[index]
-		if (value) {
-			this.values = [value]
-			this.element.classList.add("original")
-			this.element.textContent = value
-			this.isPreSet = true
-		} else {
-			this.values = [1,2,3,4,5,6,7,8,9]
-		}
 	}
 	linkColisioningTiles(board) {
 		for (let row_i of colisions.row.find(row => row.includes(this.index)))
@@ -26,20 +19,52 @@ class Tile {
 		for (let block_i of colisions.block.find(block => block.includes(this.index)))
 			if (block_i !== this.index) this.block.push(board.tiles[block_i])
 	}
+	enableInput() {
+		this.isInputEnabled = true
+		this.setValue(0)
+		this.draw()
+	}
+	#setValueEvent(e) {
+		this.setValue(Number(e.target.innerText), true)
+		for (let other of this.row) other.invalidate()
+		for (let other of this.column) other.invalidate()
+		for (let other of this.block) other.invalidate()
+		this.disableInput()
+	}
+	disableInput() {
+		this.isInputEnabled = false
+		this.draw()
+	}
+	setValue(value, initial) {
+		if (value) {
+			this.values = [value]
+			if (initial) {
+				this.element.className = "original"
+				this.element.textContent = value
+				this.isPreSet = true
+			}
+			this.draw()
+		} else {
+			this.values = [1,2,3,4,5,6,7,8,9]
+			this.element.className = ""
+			this.element.innerHTML = ""
+			this.isPreSet = false
+		}
+	}
 	value() {
 		return (this.values.length === 1) ? this.values[0] : 0
 	}
 	invalidate() {
 		if (this.isPreSet) return 0
 
-		let length = this.values.length
+		let before = this.values.length
 		var remove = otherValue => { if (otherValue) this.values = this.values.filter(v => v !== otherValue) }
 
 		for (let other of this.row) remove(other.value())
 		for (let other of this.column) remove(other.value())
 		for (let other of this.block) remove(other.value())
 
-		let changes = length - this.values.length
+		let changes = before - this.values.length
 		if (changes) this.draw()
 		return changes
 	}
@@ -71,11 +96,17 @@ class Tile {
 		this.element.className = ""
 		this.element.innerHTML = ""
 
-		if (this.values.length === 1) {
+		if (this.values.length === 1 && !this.isInputEnabled) {
 			this.element.textContent = this.values[0]
 			this.element.classList.add("single")
 		} else {
 			for (let v of this.values) this.element.innerHTML += `<span class='possible-${v}'>${v}</span>`
+		}
+		if (this.isInputEnabled) {
+			for (let span of this.element.querySelectorAll("span")) {
+				span.classList.add('choose-number')
+				span.addEventListener("click", this.#setValueEvent.bind(this))
+			}
 		}
 	}
 }

@@ -2,21 +2,29 @@ class Board {
 	tiles = []
 	saves = []
 	constructor(initString) {
-		let index = 0;
-		for (let char of initString) {
-			if (char >= '0' && char <= '9') this.tiles.push(new Tile(index++, Number(char)))
-			if (index > 80) break
-		}
+		for (let index = 0; index < 81; index++) this.tiles.push(new Tile(index))
+
+		if (initString) this.loadString(initString, true)
+		else this.enableInput()
 
 		this.eachTile(tile => tile.linkColisioningTiles(this))
 		this.invalidate()
+		this.draw()
+	}
+	iterateOnce() {
+		this.invalidate()
+		this.findSingles()
+		if (this.isValid()) {
+			this.split()
+			return true
+		} else {
+			return this.loadLastSave()
+		}
 	}
 	solve() {
+		this.disableInput()
 		while (!this.isSolved()) {
-			this.invalidate()
-			this.findSingles()
-			if (this.isValid()) this.split()
-			else if (!this.loadLastSave()) return false
+			if (!this.iterateOnce()) return false
 		}
 		return true
 	}
@@ -26,11 +34,15 @@ class Board {
 	isValid() {
 		return this.tiles.every(tile => tile.isValid())
 	}
-	invalidate(previous = 0) {
-		let changes = 0
-		this.eachTile(tile => changes += tile.invalidate())
-		if (changes) this.invalidate(previous + changes) // invalidate as long as we can
-		return previous + changes
+	invalidate() {
+		let changes = 0, pass
+		do {
+			pass = 0
+			this.eachTile(tile => pass += tile.invalidate())
+			changes += pass
+		}
+		while (pass)
+		return changes
 	}
 	findSingles() {
 		let changes = 0
@@ -58,17 +70,22 @@ class Board {
 	toString() {
 		return this.tiles.map(tile => tile.value()).join("")
 	}
+	enableInput() {
+		this.eachTile(tile => tile.enableInput())
+	}
+	disableInput() {
+		this.eachTile(tile => tile.disableInput())
+	}
 	loadLastSave() {
 		if (this.saves.length === 0) return false
 
-		let save = this.saves.pop()
-		this.eachTile(tile => {
-			let value = Number(save[tile.index])
-			tile.values = value ? [value] : [1,2,3,4,5,6,7,8,9]
-		})
+		this.loadString(this.saves.pop())
 		this.invalidate()
 		this.draw()
 		return true
+	}
+	loadString(str, initial) {
+		this.eachTile(tile => tile.setValue(Number(str[tile.index]), initial))
 	}
 	draw() {
 		this.eachTile(tile => tile.draw())

@@ -30,6 +30,10 @@
           </table>
         <div id="options">
             <button onclick="board.solve()">Solve</button>
+            <button onclick="board.disableInput();board.iterateOnce()">Iteration</button>
+            <button onclick="board = new Board()">Enable Input</button>
+            <button onclick="board.disableInput()">Disable Input</button>
+            <button onclick="board = new Board(examples.sample())">Example</button>
         </div>
         <div><input type="range" min="0" max="1000" value="0" onchange="solveInterval = Number(this.value)"></div>
     </body>

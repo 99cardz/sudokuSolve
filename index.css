@@ -11,6 +11,8 @@ body {
 table { 
     border-collapse: collapse; 
     font-family: Calibri, sans-serif; 
+    width: 27em;
+    height: 27em;
 }
 table#board.input-enabled {
     border: 3px solid blue;
@@ -26,11 +28,7 @@ td {
 
     position: relative;
     background-clip: content-box;
-    /* transition: background-color 2s; */
 }
-/* td * {
-    display: none;
-} */
 
 td.changed {
     background-color: rgb(255, 254, 188);
@@ -40,7 +38,8 @@ td.changed.backtracked {
 }
 td.original {
     color: black;
-    font-weight: bold;
+    font-weight: bolder;
+    font-size: 100%;
 }
 td.single {
     color: rgb(63, 63, 63)
